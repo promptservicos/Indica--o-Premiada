@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Indicação Premiada Prompt</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- Header fixo -->
+    <header class="main-header">
+        <div class="header-inner">
+            <div class="logo-area">
+                <span class="logo-text">Indicação <span class="highlight">Premiada</span> <span class="prompt">Prompt</span></span>
+            </div>
+            <div class="header-controls">
+                <div class="action-buttons">
+                    <button id="themeToggle" class="header-btn theme-btn" aria-label="Alternar tema">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                    <button id="adminBtn" class="header-btn admin-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container principal -->
+    <main class="container">
+        <!-- Instruções -->
+        <div class="instructions">
+            <div class="instruction-item">
+                <span class="instruction-number">1</span>
+                <span class="instruction-text">Indique alguém para uma vaga.</span>
+            </div>
+            <div class="instruction-item">
+                <span class="instruction-number">2</span>
+                <span class="instruction-text">Sendo contratado e após uma semana no cargo, você (que indicou) ganha <strong>R$ 100,00</strong> no PIX.</span>
+            </div>
+            <div class="instruction-item">
+                <span class="instruction-number">3</span>
+                <span class="instruction-text">Qualquer contato necessário será feito pelo número cadastrado.</span>
+            </div>
+        </div>
+
+        <!-- Barra de pesquisa -->
+        <div class="search-wrapper">
+            <span class="search-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+            </span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar vagas por título, local ou descrição..." />
+        </div>
+
+        <div id="vagasContainer" class="vagas-grid"></div>
+    </main>
+
+    <!-- Modal de Indicação -->
+    <div id="indicationModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="closeModal">×</span>
+            <h2>Indicar para Vaga</h2>
+            <p id="vagaTituloModal" style="font-weight: 600; color: var(--link-color); margin-bottom: 15px;"></p>
+            
+            <form id="indicationForm">
+                <div class="form-section">
+                    <h3 style="font-size: 14px; color: var(--link-color); margin-bottom: 10px; text-align: left;">Dados de quem indica</h3>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadorNome" placeholder="Nome completo" required />
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadorCpf" placeholder="CPF" maxlength="14" required />
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadorTelefone" placeholder="Telefone" maxlength="15" required />
+                    </div>
+                </div>
+
+                <div style="height: 1px; background: var(--input-border); margin: 20px 0;"></div>
+
+                <div class="form-section">
+                    <h3 style="font-size: 14px; color: var(--link-color); margin-bottom: 10px; text-align: left;">Dados de quem está sendo indicado</h3>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadoNome" placeholder="Nome completo" required />
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadoCpf" placeholder="CPF" maxlength="14" required />
+                    </div>
+                    
+                    <div class="input-box">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="indicadoTelefone" placeholder="Telefone" maxlength="15" required />
+                    </div>
+                </div>
+
+                <input type="hidden" id="vagaId" value="" />
+
+                <div id="formFeedback" class="alert" style="display: none;"></div>
+                
+                <button type="submit" class="login-btn">
+                    <span>Enviar Indicação</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="loader-overlay hidden">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <script type="module" src="index.js"></script>
+</body>
+</html>

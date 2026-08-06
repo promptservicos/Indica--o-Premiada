@@ -1,0 +1,856 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ===== VARIÁVEIS ===== */
+:root {
+    --bg-color: #f4f6fa;
+    --bg-pattern: repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 8px);
+    --container-bg: rgba(255, 255, 255, 0.95);
+    --container-border: rgba(0, 0, 0, 0.08);
+    --text-color: #1e2a3e;
+    --text-light: #4a627a;
+    --input-border: rgba(0, 0, 0, 0.15);
+    --input-focus: #C10404;
+    --button-bg: #C10404;
+    --button-hover: #9e0303;
+    --button-text: #ffffff;
+    --link-color: #C10404;
+    --placeholder-color: rgba(0, 0, 0, 0.5);
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: rgba(255, 255, 255, 0.95);
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-hover: rgba(255, 255, 255, 1);
+    --card-border: rgba(0, 0, 0, 0.12);
+    --header-bg: rgba(255, 255, 255, 0.98);
+    --search-bg: rgba(0, 0, 0, 0.04);
+}
+
+/* ===== TEMA ESCURO ===== */
+body.dark {
+    --bg-color: #0c0c10;
+    --bg-pattern: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 8px);
+    --container-bg: rgba(20, 20, 28, 0.92);
+    --container-border: rgba(193, 4, 4, 0.3);
+    --text-color: #eef2ff;
+    --text-light: #b9c7d9;
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-focus: #C10404;
+    --button-bg: #C10404;
+    --button-hover: #a00000;
+    --button-text: #ffffff;
+    --link-color: #ff6b6b;
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+    --modal-bg: rgba(0, 0, 0, 0.8);
+    --modal-content-bg: rgba(25, 25, 35, 0.95);
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    --card-bg: rgba(30, 30, 40, 0.9);
+    --card-hover: rgba(40, 40, 50, 0.95);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --header-bg: rgba(20, 20, 28, 0.98);
+    --search-bg: rgba(255, 255, 255, 0.06);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    background-image: var(--bg-pattern);
+    padding-top: 80px;
+}
+
+/* ===== HEADER FIXO ===== */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--container-border);
+    backdrop-filter: blur(10px);
+    padding: 0 2rem;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+
+.header-inner {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo-area {
+    flex-shrink: 0;
+}
+
+.logo-text {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
+}
+
+.logo-text .highlight {
+    color: var(--link-color);
+}
+
+.logo-text .prompt {
+    font-weight: 700;
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.header-btn {
+    background: transparent;
+    border: 2px solid var(--input-border);
+    border-radius: 30px;
+    padding: 0.4rem 1.2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    font-family: "Poppins", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    white-space: nowrap;
+}
+
+.header-btn:hover {
+    border-color: var(--input-focus);
+    background: var(--input-focus);
+    color: #fff;
+}
+
+.header-btn svg {
+    flex-shrink: 0;
+}
+
+.theme-btn {
+    padding: 0.4rem 0.9rem;
+}
+
+.theme-btn:hover {
+    background: var(--input-focus);
+    border-color: var(--input-focus);
+}
+
+.admin-btn {
+    border-color: var(--link-color);
+    color: var(--link-color);
+}
+
+.admin-btn:hover {
+    background: var(--link-color);
+    color: #fff;
+    border-color: var(--link-color);
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    flex: 1;
+}
+
+/* ===== INSTRUÇÕES ===== */
+.instructions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 700px;
+    margin: 0 auto 1.5rem auto;
+    padding: 1rem 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.instruction-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.4;
+}
+
+.instruction-item strong {
+    color: var(--link-color);
+    font-weight: 600;
+}
+
+.instruction-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    background: var(--link-color);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.instruction-text {
+    color: var(--text-light);
+}
+
+/* ===== SEARCH ===== */
+.search-wrapper {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 20px 0 48px;
+    border: 2px solid var(--input-border);
+    border-radius: 30px;
+    background: var(--search-bg);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    font-family: "Poppins", sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: var(--placeholder-color);
+}
+
+.search-input:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 4px rgba(193, 4, 4, 0.06);
+}
+
+/* ===== VAGAS GRID ===== */
+.vagas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* ===== VAGA CARD ===== */
+.vaga-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.vaga-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--link-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vaga-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--input-focus);
+}
+
+.vaga-card:hover::before {
+    opacity: 1;
+}
+
+.vaga-card.expandido {
+    border-color: var(--input-focus);
+    background: var(--card-hover);
+}
+
+.vaga-card.expandido::before {
+    opacity: 1;
+}
+
+.vaga-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.vaga-titulo {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.3;
+    flex: 1;
+}
+
+.vaga-badge {
+    background: var(--link-color);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.vaga-local {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.vaga-local svg {
+    flex-shrink: 0;
+}
+
+.vaga-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+}
+
+.vaga-card.expandido .vaga-expand {
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 1rem;
+}
+
+.vaga-details {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--input-border);
+}
+
+.vaga-salario {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--link-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.vaga-descricao {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.vaga-descricao strong {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.btn-indicar {
+    width: 100%;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    padding: 0.7rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: "Poppins", sans-serif;
+}
+
+.btn-indicar:hover {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(193, 4, 4, 0.3);
+}
+
+/* ===== INPUTS ===== */
+.input-box {
+    position: relative;
+    width: 100%;
+    margin: 15px 0;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-box input {
+    width: 100%;
+    height: 48px;
+    background-color: transparent;
+    border: 2px solid var(--input-border);
+    border-radius: 30px;
+    outline: none;
+    font-size: 14px;
+    color: var(--text-color);
+    padding: 0 20px 0 48px;
+    font-family: "Poppins", sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-box input::placeholder {
+    color: var(--placeholder-color);
+}
+
+.input-box input:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 4px rgba(193, 4, 4, 0.06);
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-bg);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--modal-content-bg);
+    border: 2px solid var(--container-border);
+    border-radius: 28px;
+    padding: 35px 30px;
+    width: 500px;
+    max-width: 92%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+    position: relative;
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: var(--text-light);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: var(--link-color);
+}
+
+.modal-content h2 {
+    font-size: 22px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+}
+
+/* ===== BOTÃO LOGIN ===== */
+.login-btn {
+    width: 100%;
+    height: 48px;
+    border: none;
+    outline: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, var(--button-bg) 0%, var(--button-hover) 100%);
+    color: var(--button-text);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(193, 4, 4, 0.3);
+    font-family: "Poppins", sans-serif;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(193, 4, 4, 0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+/* ===== ALERTAS ===== */
+.alert {
+    padding: 10px 16px;
+    margin: 10px 0;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.alert-error {
+    background-color: rgba(193, 4, 4, 0.12);
+    border-left: 4px solid #C10404;
+    color: var(--text-color);
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.12);
+    border-left: 4px solid #2ecc71;
+    color: var(--text-color);
+}
+
+/* ===== LOADER ===== */
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.loader-overlay.hidden {
+    display: none;
+}
+
+.loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--input-border);
+    border-top-color: var(--link-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--link-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover);
+}
+
+/* ===== SELEÇÃO ===== */
+::selection {
+    background: rgba(193, 4, 4, 0.3);
+    color: #fff;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1024px) {
+    .header-inner {
+        gap: 1rem;
+    }
+    
+    .logo-text {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 68px;
+    }
+    
+    .main-header {
+        height: 64px;
+        padding: 0 1rem;
+    }
+    
+    .logo-text {
+        font-size: 1.1rem;
+    }
+    
+    .header-controls {
+        gap: 0.6rem;
+        max-width: 100%;
+    }
+    
+    .header-btn {
+        height: 38px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+        border-width: 1.5px;
+    }
+    
+    .header-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .container {
+        padding: 1.5rem 1rem;
+    }
+    
+    .instructions {
+        padding: 0.8rem 1.2rem;
+        gap: 0.5rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .instruction-item {
+        font-size: 0.8rem;
+        gap: 0.6rem;
+    }
+    
+    .instruction-number {
+        min-width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+    }
+    
+    .search-wrapper {
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-input {
+        height: 42px;
+        font-size: 0.85rem;
+        padding: 0 16px 0 44px;
+    }
+    
+    .search-icon {
+        left: 16px;
+    }
+    
+    .search-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .vagas-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .vaga-card {
+        padding: 1.2rem;
+    }
+    
+    .modal-content {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 60px;
+    }
+    
+    .main-header {
+        height: 56px;
+        padding: 0 0.75rem;
+    }
+    
+    .logo-text {
+        font-size: 0.9rem;
+    }
+    
+    .header-controls {
+        gap: 0.4rem;
+    }
+    
+    .header-btn {
+        height: 34px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.7rem;
+        border-width: 1.5px;
+    }
+    
+    .header-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .admin-btn span {
+        display: none;
+    }
+    
+    .container {
+        padding: 1rem 0.75rem;
+    }
+    
+    .instructions {
+        padding: 0.6rem 1rem;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+    }
+    
+    .instruction-item {
+        font-size: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .instruction-number {
+        min-width: 18px;
+        height: 18px;
+        font-size: 0.6rem;
+    }
+    
+    .search-wrapper {
+        margin-bottom: 1rem;
+    }
+    
+    .search-input {
+        height: 38px;
+        font-size: 0.8rem;
+        padding: 0 14px 0 40px;
+    }
+    
+    .search-icon {
+        left: 14px;
+    }
+    
+    .search-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .vaga-card {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+    
+    .modal-content {
+        padding: 20px 15px;
+        border-radius: 20px;
+    }
+    
+    .input-box input {
+        height: 42px;
+        font-size: 13px;
+        padding: 0 15px 0 42px;
+        border-width: 1.5px;
+    }
+    
+    .input-icon-left {
+        left: 14px;
+    }
+    
+    .input-icon-left svg {
+        width: 16px;
+        height: 16px;
+    }
+}
