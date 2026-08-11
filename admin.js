@@ -144,6 +144,20 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// ===== CARREGAR EMAIL SALVO =====
+function carregarEmailSalvo() {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const rememberMe = localStorage.getItem('rememberMe');
+    
+    if (rememberedEmail && rememberMe === 'true') {
+        loginUser.value = rememberedEmail;
+        document.getElementById('rememberMe').checked = true;
+    }
+}
+
+// Chama a função quando a página carregar
+carregarEmailSalvo();
+
 // ===== LOGIN =====
 function showLoginFeedback(message, type = 'error') {
     loginFeedback.textContent = message;
@@ -163,6 +177,7 @@ loginForm.addEventListener('submit', async (e) => {
     
     const email = loginUser.value.trim();
     const password = loginPassword.value.trim();
+    const rememberMe = document.getElementById('rememberMe').checked;
 
     if (!email || !password) {
         showLoginFeedback('Preencha todos os campos');
@@ -177,6 +192,15 @@ loginForm.addEventListener('submit', async (e) => {
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
+        
+        // Se "Lembrar de mim" estiver marcado, salva no localStorage
+        if (rememberMe) {
+            localStorage.setItem('rememberedEmail', email);
+            localStorage.setItem('rememberMe', 'true');
+        } else {
+            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberMe');
+        }
     } catch (error) {
         console.error('Erro de login:', error);
         let message = 'Credenciais inválidas. Tente novamente.';
@@ -595,7 +619,6 @@ function abrirNovaVaga() {
 novaVagaBtn.addEventListener('click', abrirNovaVaga);
 closeVagaModal.addEventListener('click', () => vagaModal.classList.remove('active'));
 
-
 // ===== SALVAR VAGA =====
 vagaForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -656,9 +679,6 @@ function abrirConfirmDelete(vaga) {
 
 closeConfirmModal.addEventListener('click', () => confirmModal.classList.remove('active'));
 cancelDeleteBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
-confirmModal.addEventListener('click', (e) => {
-    if (e.target === confirmModal) confirmModal.classList.remove('active');
-});
 
 confirmDeleteBtn.addEventListener('click', async () => {
     if (!deleteTargetId) return;
