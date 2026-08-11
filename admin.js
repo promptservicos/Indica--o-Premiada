@@ -318,6 +318,7 @@ function renderVagas() {
 }
 
 // ===== RENDER INDICAÇÕES =====
+// ===== RENDER INDICAÇÕES =====
 function renderIndicacoes() {
     if (indicacoes.length === 0) {
         indicacoesList.innerHTML = `
@@ -329,20 +330,36 @@ function renderIndicacoes() {
     }
 
     indicacoesList.innerHTML = indicacoes.map(ind => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <h3>${ind.indicado?.nome || 'Nome não informado'}</h3>
-                <p><strong>Indicador:</strong> ${ind.indicador?.nome || 'Não informado'}</p>
-                <p><strong>Vaga:</strong> ${ind.vagaTitulo || 'ID: ' + ind.vagaId}</p>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
-                    ${ind.timestamp ? new Date(ind.timestamp).toLocaleDateString('pt-BR') : 'Data não informada'}
-                    ${ind.status ? `• Status: ${ind.status}` : ''}
-                </p>
-            </div>
-            <div class="admin-item-actions">
-                <span style="font-size: 0.75rem; color: var(--text-muted); padding: 0.2rem 0.6rem; background: var(--tab-bg); border-radius: 12px;">
-                    ${ind.status || 'Pendente'}
-                </span>
+        <div class="admin-item" style="flex-direction: column; align-items: stretch; gap: 0.8rem;">
+            <div class="admin-item-info" style="width: 100%;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+                    <div style="background: var(--tab-bg); padding: 0.8rem; border-radius: 12px;">
+                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">👤 Quem Indicou</h4>
+                        <p style="font-weight: 600; color: var(--text-color); font-size: 0.9rem;">${ind.indicador?.nome || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">CPF: ${ind.indicador?.cpf || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">Telefone: ${ind.indicador?.telefone || 'Não informado'}</p>
+                    </div>
+                    <div style="background: var(--tab-bg); padding: 0.8rem; border-radius: 12px;">
+                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">👤 Quem foi Indicado</h4>
+                        <p style="font-weight: 600; color: var(--text-color); font-size: 0.9rem;">${ind.indicado?.nome || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">CPF: ${ind.indicado?.cpf || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">Telefone: ${ind.indicado?.telefone || 'Não informado'}</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    <p style="font-size: 0.8rem; color: var(--text-light);">
+                        <strong>Vaga:</strong> ${ind.vagaTitulo || 'ID: ' + ind.vagaId}
+                    </p>
+                    <p style="font-size: 0.8rem; color: var(--text-light);">
+                        <strong>Data:</strong> ${ind.timestamp ? new Date(ind.timestamp).toLocaleDateString('pt-BR') : 'Não informada'}
+                    </p>
+                    <p style="font-size: 0.8rem; color: var(--text-light);">
+                        <strong>Status:</strong> 
+                        <span style="padding: 0.2rem 0.6rem; background: var(--tab-bg); border-radius: 12px; font-weight: 600; color: var(--link-color);">
+                            ${ind.status || 'Pendente'}
+                        </span>
+                    </p>
+                </div>
             </div>
         </div>
     `).join('');
