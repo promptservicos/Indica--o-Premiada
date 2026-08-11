@@ -938,13 +938,13 @@ body {
     min-width: 280px !important;
 }
 
-/* ===== AJUSTE DO "LEMBRAR DE MIM" ===== */
+/* ===== CENTRALIZAR "LEMBRAR DE MIM" ===== */
 .remember-me-wrapper {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.6rem;
     margin: 0.5rem 0 1rem 0;
-    padding-left: 4px;
 }
 
 .remember-me-wrapper input[type="checkbox"] {
