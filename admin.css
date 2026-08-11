@@ -331,6 +331,7 @@ body {
     display: flex;
     gap: 0.5rem;
     flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 .action-btn {
@@ -371,6 +372,26 @@ body {
 
 .action-btn.delete-btn:hover {
     background: #e74c3c;
+    color: #fff;
+}
+
+.action-btn.pause-btn {
+    border-color: #f39c12;
+    color: #f39c12;
+}
+
+.action-btn.pause-btn:hover {
+    background: #f39c12;
+    color: #fff;
+}
+
+.action-btn.active-btn {
+    border-color: #2ecc71;
+    color: #2ecc71;
+}
+
+.action-btn.active-btn:hover {
+    background: #2ecc71;
     color: #fff;
 }
 
@@ -811,4 +832,67 @@ body {
         font-size: 13px;
         padding: 12px 15px 12px 42px;
     }
+}
+
+/* ===== STATUS BADGE ===== */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-left: 0.5rem;
+}
+
+.status-badge.ativa {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.status-badge.pausada {
+    background: rgba(243, 156, 18, 0.15);
+    color: #f39c12;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+/* ===== STATUS SELECT ===== */
+.status-select {
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.status-select:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-select:focus {
+    box-shadow: 0 0 0 3px rgba(193, 4, 4, 0.15);
+}
+
+/* ===== STATUS BADGE ===== */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-left: 0.5rem;
+}
+
+.status-badge.ativa {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.status-badge.pausada {
+    background: rgba(243, 156, 18, 0.15);
+    color: #f39c12;
+    border: 1px solid rgba(243, 156, 18, 0.3);
 }

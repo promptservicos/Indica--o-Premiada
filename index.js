@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 // Firebase Config
 const firebaseConfig = {
@@ -26,6 +26,7 @@ const feedback = document.getElementById('formFeedback');
 const vagaIdHidden = document.getElementById('vagaId');
 const vagaTituloModal = document.getElementById('vagaTituloModal');
 const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
 const loader = document.getElementById('loader');
 const searchInput = document.getElementById('searchInput');
 const adminBtn = document.getElementById('adminBtn');
@@ -38,26 +39,14 @@ let filteredVagas = [];
 function toggleTheme() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
-    const svg = themeToggle.querySelector('svg');
-    if (isDark) {
-        svg.innerHTML = `
-            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-        `;
-    } else {
-        svg.innerHTML = `
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        `;
-    }
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') {
     document.body.classList.add('dark');
-    const svg = themeToggle.querySelector('svg');
-    svg.innerHTML = `
-        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-    `;
+    themeIcon.textContent = '☀️';
 }
 
 themeToggle.addEventListener('click', toggleTheme);
@@ -99,9 +88,10 @@ document.querySelectorAll('input[type="text"]').forEach(input => {
 searchInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
     if (!query) {
-        filteredVagas = [...vagas];
+        filteredVagas = vagas.filter(v => v.status !== 'pausado');
     } else {
         filteredVagas = vagas.filter(vaga => {
+            if (vaga.status === 'pausado') return false;
             const searchable = `${vaga.titulo} ${vaga.local} ${vaga.descricao} ${vaga.salario}`.toLowerCase();
             return searchable.includes(query);
         });
@@ -123,12 +113,12 @@ async function carregarVagas() {
             vagas = getMockVagas();
         }
         
-        filteredVagas = [...vagas];
+        filteredVagas = vagas.filter(v => v.status !== 'pausado');
         renderVagas(filteredVagas);
     } catch (error) {
         console.error("Erro ao carregar vagas:", error);
         vagas = getMockVagas();
-        filteredVagas = [...vagas];
+        filteredVagas = vagas.filter(v => v.status !== 'pausado');
         renderVagas(filteredVagas);
     } finally {
         loader.classList.add('hidden');
@@ -143,35 +133,40 @@ function getMockVagas() {
             titulo: "Desenvolvedor Full Stack",
             local: "Remoto / Brasil",
             salario: "R$ 7.000,00",
-            descricao: "Atuação com React, Node.js e bancos de dados. Experiência com metodologias ágeis e trabalho em equipe."
+            descricao: "Atuação com React, Node.js e bancos de dados. Experiência com metodologias ágeis e trabalho em equipe.",
+            status: 'ativa'
         },
         {
             id: "v2",
             titulo: "Analista de Marketing",
             local: "São Paulo - SP",
             salario: "R$ 5.200,00",
-            descricao: "Planejamento de campanhas, gestão de mídias sociais, análise de métricas e criação de conteúdo."
+            descricao: "Planejamento de campanhas, gestão de mídias sociais, análise de métricas e criação de conteúdo.",
+            status: 'ativa'
         },
         {
             id: "v3",
             titulo: "Engenheiro de Dados",
             local: "Belo Horizonte - MG",
             salario: "R$ 9.800,00",
-            descricao: "Pipeline de dados, ETL, SQL e Python. Modelagem de dados e arquitetura de soluções."
+            descricao: "Pipeline de dados, ETL, SQL e Python. Modelagem de dados e arquitetura de soluções.",
+            status: 'ativa'
         },
         {
             id: "v4",
             titulo: "UX/UI Designer",
             local: "Curitiba - PR",
             salario: "R$ 6.300,00",
-            descricao: "Criação de interfaces, prototipagem, testes de usabilidade e design system."
+            descricao: "Criação de interfaces, prototipagem, testes de usabilidade e design system.",
+            status: 'ativa'
         },
         {
             id: "v5",
             titulo: "Suporte Técnico N2",
             local: "Rio de Janeiro - RJ",
             salario: "R$ 3.800,00",
-            descricao: "Atendimento a clientes, resolução de problemas técnicos e registro de chamados."
+            descricao: "Atendimento a clientes, resolução de problemas técnicos e registro de chamados.",
+            status: 'ativa'
         }
     ];
 }
@@ -183,8 +178,8 @@ function renderVagas(vagasList) {
     if (vagasList.length === 0) {
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--text-light);">
-                <p style="font-size: 1.1rem;">Nenhuma vaga encontrada para sua busca.</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Tente ajustar os termos da pesquisa.</p>
+                <p style="font-size: 1.1rem;">Nenhuma vaga disponível no momento.</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Volte em breve para novas oportunidades.</p>
             </div>
         `;
         return;
@@ -198,7 +193,7 @@ function renderVagas(vagasList) {
         card.innerHTML = `
             <div class="vaga-header">
                 <div class="vaga-titulo">${vaga.titulo}</div>
-                <span class="vaga-badge">Aberto</span>
+                <span class="vaga-badge">${vaga.status === 'pausado' ? 'Pausada' : 'Aberto'}</span>
             </div>
             <div class="vaga-local">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">

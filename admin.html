@@ -122,7 +122,25 @@
             <div id="indicacoesTab" class="tab-content">
                 <div class="tab-header">
                     <h2>Lista de Indicações</h2>
-                    <span id="totalIndicacoes" class="total-badge">0</span>
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label for="filtroData" style="font-size: 0.85rem; color: var(--text-light);">Data:</label>
+                            <input type="date" id="filtroData" style="padding: 0.4rem 0.8rem; border: 2px solid var(--input-border); border-radius: 12px; background: var(--card-bg); color: var(--text-color); font-family: 'Poppins', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.3s;" />
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label for="filtroStatus" style="font-size: 0.85rem; color: var(--text-light);">Status:</label>
+                            <select id="filtroStatus" style="padding: 0.4rem 0.8rem; border: 2px solid var(--input-border); border-radius: 12px; background: var(--card-bg); color: var(--text-color); font-family: 'Poppins', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.3s; cursor: pointer;">
+                                <option value="todos">Todos</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="descartado">Descartado</option>
+                                <option value="em_analise">Em Análise</option>
+                                <option value="aprovado">Aprovado</option>
+                                <option value="pago">Pago</option>
+                            </select>
+                        </div>
+                        <button id="limparFiltros" class="action-btn" style="padding: 0.3rem 1rem; font-size: 0.75rem;">Limpar Filtros</button>
+                        <span id="totalIndicacoes" class="total-badge">0</span>
+                    </div>
                 </div>
                 <div id="indicacoesList" class="admin-list"></div>
             </div>

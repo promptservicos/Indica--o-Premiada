@@ -12,7 +12,7 @@ import {
     getDocs, 
     doc, 
     updateDoc, 
-    deleteDoc 
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 // Firebase Config
@@ -50,6 +50,11 @@ const vagasList = document.getElementById('vagasList');
 const indicacoesList = document.getElementById('indicacoesList');
 const totalIndicacoes = document.getElementById('totalIndicacoes');
 
+// Filtros
+const filtroData = document.getElementById('filtroData');
+const filtroStatus = document.getElementById('filtroStatus');
+const limparFiltros = document.getElementById('limparFiltros');
+
 // Vaga Modal
 const vagaModal = document.getElementById('vagaModal');
 const closeVagaModal = document.getElementById('closeVagaModal');
@@ -77,8 +82,18 @@ const loader = document.getElementById('loader');
 // ===== STATE =====
 let vagas = [];
 let indicacoes = [];
+let indicacoesFiltradas = [];
 let deleteTargetId = null;
 let isLoggingIn = false;
+
+// ===== Mapeamento de status para exibição =====
+const statusMap = {
+    'pendente': { label: 'Pendente', color: '#f39c12', bg: 'rgba(243, 156, 18, 0.12)' },
+    'descartado': { label: 'Descartado', color: '#e74c3c', bg: 'rgba(231, 76, 60, 0.12)' },
+    'em_analise': { label: 'Em Análise', color: '#3498db', bg: 'rgba(52, 152, 219, 0.12)' },
+    'aprovado': { label: 'Aprovado', color: '#2ecc71', bg: 'rgba(46, 204, 113, 0.12)' },
+    'pago': { label: 'Pago', color: '#9b59b6', bg: 'rgba(155, 89, 182, 0.12)' }
+};
 
 // ===== THEME =====
 function toggleTheme() {
@@ -111,13 +126,11 @@ themeToggle.addEventListener('click', toggleTheme);
 // ===== AUTH STATE =====
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Usuário está logado
         loginContainer.style.display = 'none';
         adminContainer.classList.remove('hidden');
         carregarDados();
         loginFeedback.style.display = 'none';
     } else {
-        // Usuário não está logado
         adminContainer.classList.add('hidden');
         loginContainer.style.display = 'flex';
         if (!isLoggingIn) {
@@ -160,7 +173,6 @@ loginForm.addEventListener('submit', async (e) => {
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // O onAuthStateChanged vai cuidar da navegação
     } catch (error) {
         console.error('Erro de login:', error);
         let message = 'Credenciais inválidas. Tente novamente.';
@@ -193,7 +205,6 @@ loginForm.addEventListener('submit', async (e) => {
 logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
-        // O onAuthStateChanged vai cuidar da navegação
     } catch (error) {
         console.error('Erro ao sair:', error);
     }
@@ -217,10 +228,50 @@ tabButtons.forEach(btn => {
         } else {
             indicacoesTab.classList.add('active');
             vagasTab.classList.remove('active');
-            renderIndicacoes();
+            aplicarFiltros();
         }
     });
 });
+
+// ===== FILTROS =====
+filtroData.addEventListener('change', aplicarFiltros);
+filtroStatus.addEventListener('change', aplicarFiltros);
+
+limparFiltros.addEventListener('click', () => {
+    filtroData.value = '';
+    filtroStatus.value = 'todos';
+    aplicarFiltros();
+});
+
+function aplicarFiltros() {
+    let resultado = [...indicacoes];
+    
+    // Filtro por data
+    const dataSelecionada = filtroData.value;
+    if (dataSelecionada) {
+        const [ano, mes, dia] = dataSelecionada.split('-');
+        const dataInicio = new Date(ano, mes - 1, dia);
+        const dataFim = new Date(ano, mes - 1, dia, 23, 59, 59);
+        
+        resultado = resultado.filter(ind => {
+            if (!ind.timestamp) return false;
+            const indData = new Date(ind.timestamp);
+            return indData >= dataInicio && indData <= dataFim;
+        });
+    }
+    
+    // Filtro por status
+    const statusSelecionado = filtroStatus.value;
+    if (statusSelecionado !== 'todos') {
+        resultado = resultado.filter(ind => {
+            const status = ind.status || 'pendente';
+            return status === statusSelecionado;
+        });
+    }
+    
+    indicacoesFiltradas = resultado;
+    renderIndicacoes();
+}
 
 // ===== CARREGAR DADOS =====
 async function carregarDados() {
@@ -228,6 +279,7 @@ async function carregarDados() {
         loader.classList.remove('hidden');
         await Promise.all([carregarVagas(), carregarIndicacoes()]);
         renderVagas();
+        indicacoesFiltradas = [...indicacoes];
         renderIndicacoes();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -253,14 +305,54 @@ async function carregarIndicacoes() {
     try {
         const querySnapshot = await getDocs(collection(db, "indicacoes"));
         indicacoes = [];
-        querySnapshot.forEach((doc) => {
-            indicacoes.push({ id: doc.id, ...doc.data() });
+        
+        const vagasSnapshot = await getDocs(collection(db, "vagas"));
+        const vagasMap = {};
+        vagasSnapshot.forEach((doc) => {
+            vagasMap[doc.id] = doc.data();
         });
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const vagaInfo = vagasMap[data.vagaId];
+            if (vagaInfo) {
+                data.vagaTitulo = `${vagaInfo.titulo} / ${vagaInfo.local}`;
+            } else {
+                data.vagaTitulo = data.vagaTitulo || 'ID: ' + data.vagaId;
+            }
+            // Garante que o status existe
+            if (!data.status) {
+                data.status = 'pendente';
+            }
+            indicacoes.push({ id: doc.id, ...data });
+        });
+        
         totalIndicacoes.textContent = indicacoes.length;
+        indicacoesFiltradas = [...indicacoes];
     } catch (error) {
         console.error("Erro ao carregar indicações:", error);
         indicacoes = [];
     }
+}
+
+// ===== FUNÇÃO PARA CONTAR INDICAÇÕES POR CPF =====
+function contarIndicacoesPorCPF(cpf) {
+    if (!cpf) return { indicou: 0, foiIndicado: 0 };
+    
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    
+    let indicou = 0;
+    let foiIndicado = 0;
+    
+    indicacoes.forEach(ind => {
+        const indicadorCpf = ind.indicador?.cpf?.replace(/\D/g, '') || '';
+        const indicadoCpf = ind.indicado?.cpf?.replace(/\D/g, '') || '';
+        
+        if (indicadorCpf === cpfLimpo) indicou++;
+        if (indicadoCpf === cpfLimpo) foiIndicado++;
+    });
+    
+    return { indicou, foiIndicado };
 }
 
 // ===== RENDER VAGAS =====
@@ -274,14 +366,26 @@ function renderVagas() {
         return;
     }
 
-    vagasList.innerHTML = vagas.map(vaga => `
+    vagasList.innerHTML = vagas.map(vaga => {
+        const status = vaga.status || 'ativa';
+        const isPausado = status === 'pausado';
+        
+        return `
         <div class="admin-item">
             <div class="admin-item-info">
-                <h3>${vaga.titulo}</h3>
+                <h3>
+                    ${vaga.titulo}
+                    <span class="status-badge ${isPausado ? 'pausada' : 'ativa'}">
+                        ${isPausado ? '⏸ Pausada' : '✓ Ativa'}
+                    </span>
+                </h3>
                 <p>${vaga.local} • ${vaga.salario}</p>
                 <p style="font-size: 0.8rem; margin-top: 0.2rem; color: var(--text-muted);">${vaga.descricao ? vaga.descricao.substring(0, 80) + '...' : ''}</p>
             </div>
             <div class="admin-item-actions">
+                <button class="action-btn ${isPausado ? 'active-btn' : 'pause-btn'}" data-id="${vaga.id}" data-action="toggle-status">
+                    ${isPausado ? '▶ Ativar' : '⏸ Pausar'}
+                </button>
                 <button class="action-btn edit-btn" data-id="${vaga.id}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -298,7 +402,7 @@ function renderVagas() {
                 </button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -315,54 +419,118 @@ function renderVagas() {
             if (vaga) abrirConfirmDelete(vaga);
         });
     });
+
+    document.querySelectorAll('[data-action="toggle-status"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const vaga = vagas.find(v => v.id === id);
+            if (!vaga) return;
+            
+            const novoStatus = vaga.status === 'pausado' ? 'ativa' : 'pausado';
+            
+            try {
+                loader.classList.remove('hidden');
+                await updateDoc(doc(db, "vagas", id), { status: novoStatus });
+                await carregarVagas();
+                renderVagas();
+            } catch (error) {
+                console.error("Erro ao alterar status:", error);
+                alert('Erro ao alterar status da vaga.');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+    });
 }
 
 // ===== RENDER INDICAÇÕES =====
-// ===== RENDER INDICAÇÕES =====
 function renderIndicacoes() {
-    if (indicacoes.length === 0) {
+    const lista = indicacoesFiltradas || indicacoes;
+    
+    if (lista.length === 0) {
         indicacoesList.innerHTML = `
             <div class="admin-item" style="justify-content: center; color: var(--text-light);">
-                <p>Nenhuma indicação registrada ainda.</p>
+                <p>${(filtroData.value || filtroStatus.value !== 'todos') ? 'Nenhuma indicação encontrada com os filtros selecionados.' : 'Nenhuma indicação registrada ainda.'}</p>
             </div>
         `;
         return;
     }
 
-    indicacoesList.innerHTML = indicacoes.map(ind => `
+    indicacoesList.innerHTML = lista.map(ind => {
+        const contagens = contarIndicacoesPorCPF(ind.indicador?.cpf);
+        const contagensIndicado = contarIndicacoesPorCPF(ind.indicado?.cpf);
+        const statusInfo = statusMap[ind.status] || statusMap['pendente'];
+        
+        return `
         <div class="admin-item" style="flex-direction: column; align-items: stretch; gap: 0.8rem;">
             <div class="admin-item-info" style="width: 100%;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; width: 100%;">
                     <div style="background: var(--tab-bg); padding: 0.8rem; border-radius: 12px;">
-                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">👤 Quem Indicou</h4>
+                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">Indicou</h4>
                         <p style="font-weight: 600; color: var(--text-color); font-size: 0.9rem;">${ind.indicador?.nome || 'Não informado'}</p>
-                        <p style="font-size: 0.8rem; color: var(--text-light);">CPF: ${ind.indicador?.cpf || 'Não informado'}</p>
-                        <p style="font-size: 0.8rem; color: var(--text-light);">Telefone: ${ind.indicador?.telefone || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);"><strong>CPF:</strong> ${ind.indicador?.cpf || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);"><strong>Telefone:</strong> ${ind.indicador?.telefone || 'Não informado'}</p>
+                        <p style="font-size: 0.75rem; color: var(--link-color); font-weight: 600; margin-top: 0.3rem;">Indicou: ${contagens.indicou} vez(es)</p>
                     </div>
                     <div style="background: var(--tab-bg); padding: 0.8rem; border-radius: 12px;">
-                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">👤 Quem foi Indicado</h4>
+                        <h4 style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">Indicado</h4>
                         <p style="font-weight: 600; color: var(--text-color); font-size: 0.9rem;">${ind.indicado?.nome || 'Não informado'}</p>
-                        <p style="font-size: 0.8rem; color: var(--text-light);">CPF: ${ind.indicado?.cpf || 'Não informado'}</p>
-                        <p style="font-size: 0.8rem; color: var(--text-light);">Telefone: ${ind.indicado?.telefone || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);"><strong>CPF:</strong> ${ind.indicado?.cpf || 'Não informado'}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-light);"><strong>Telefone:</strong> ${ind.indicado?.telefone || 'Não informado'}</p>
+                        <p style="font-size: 0.75rem; color: var(--link-color); font-weight: 600; margin-top: 0.3rem;">Foi indicado: ${contagensIndicado.foiIndicado} vez(es)</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: flex-start; min-width: 140px;">
+                        <label style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;">Status</label>
+                        <select class="status-select" data-id="${ind.id}" style="padding: 0.4rem 0.6rem; border: 2px solid ${statusInfo.color}; border-radius: 12px; background: ${statusInfo.bg}; color: ${statusInfo.color}; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; outline: none; cursor: pointer; transition: all 0.3s ease;">
+                            <option value="pendente" ${ind.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+                            <option value="descartado" ${ind.status === 'descartado' ? 'selected' : ''}>Descartado</option>
+                            <option value="em_analise" ${ind.status === 'em_analise' ? 'selected' : ''}>Em Análise</option>
+                            <option value="aprovado" ${ind.status === 'aprovado' ? 'selected' : ''}>Aprovado</option>
+                            <option value="pago" ${ind.status === 'pago' ? 'selected' : ''}>Pago</option>
+                        </select>
                     </div>
                 </div>
-                <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                    <p style="font-size: 0.8rem; color: var(--text-light);">
+                
+                <div style="margin-top: 0.8rem; padding-top: 0.8rem; border-top: 2px solid var(--input-border); display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-light); margin: 0;">
                         <strong>Vaga:</strong> ${ind.vagaTitulo || 'ID: ' + ind.vagaId}
                     </p>
-                    <p style="font-size: 0.8rem; color: var(--text-light);">
+                    <p style="font-size: 0.8rem; color: var(--text-light); margin: 0;">
                         <strong>Data:</strong> ${ind.timestamp ? new Date(ind.timestamp).toLocaleDateString('pt-BR') : 'Não informada'}
-                    </p>
-                    <p style="font-size: 0.8rem; color: var(--text-light);">
-                        <strong>Status:</strong> 
-                        <span style="padding: 0.2rem 0.6rem; background: var(--tab-bg); border-radius: 12px; font-weight: 600; color: var(--link-color);">
-                            ${ind.status || 'Pendente'}
-                        </span>
                     </p>
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
+
+    // Event listeners para mudança de status
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+            const id = e.target.dataset.id;
+            const novoStatus = e.target.value;
+            
+            try {
+                loader.classList.remove('hidden');
+                await updateDoc(doc(db, "indicacoes", id), { status: novoStatus });
+                // Atualiza localmente
+                const indice = indicacoes.findIndex(ind => ind.id === id);
+                if (indice !== -1) {
+                    indicacoes[indice].status = novoStatus;
+                }
+                // Reaplica os filtros
+                aplicarFiltros();
+            } catch (error) {
+                console.error("Erro ao atualizar status:", error);
+                alert('Erro ao atualizar status da indicação.');
+                // Reverte o select
+                aplicarFiltros();
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+    });
+    
+    totalIndicacoes.textContent = lista.length;
 }
 
 // ===== MODAL VAGA =====
@@ -401,7 +569,8 @@ vagaForm.addEventListener('submit', async (e) => {
         titulo: vagaTitulo.value.trim(),
         local: vagaLocal.value.trim(),
         salario: vagaSalario.value.trim(),
-        descricao: vagaDescricao.value.trim()
+        descricao: vagaDescricao.value.trim(),
+        status: 'ativa'
     };
 
     if (!dados.titulo || !dados.local || !dados.salario || !dados.descricao) {
