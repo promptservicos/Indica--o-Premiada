@@ -55,6 +55,9 @@ const filtroData = document.getElementById('filtroData');
 const filtroStatus = document.getElementById('filtroStatus');
 const limparFiltros = document.getElementById('limparFiltros');
 
+// Busca de vagas
+const buscaVagas = document.getElementById('buscaVagas');
+
 // Vaga Modal
 const vagaModal = document.getElementById('vagaModal');
 const closeVagaModal = document.getElementById('closeVagaModal');
@@ -81,6 +84,7 @@ const loader = document.getElementById('loader');
 
 // ===== STATE =====
 let vagas = [];
+let vagasFiltradas = [];
 let indicacoes = [];
 let indicacoesFiltradas = [];
 let deleteTargetId = null;
@@ -224,13 +228,37 @@ tabButtons.forEach(btn => {
         if (tab === 'vagas') {
             vagasTab.classList.add('active');
             indicacoesTab.classList.remove('active');
-            renderVagas();
+            const query = buscaVagas.value.trim();
+            if (query) {
+                const searchQuery = query.toLowerCase();
+                vagasFiltradas = vagas.filter(v => {
+                    const searchable = `${v.titulo} ${v.local} ${v.descricao || ''}`.toLowerCase();
+                    return searchable.includes(searchQuery);
+                });
+                renderVagas(vagasFiltradas);
+            } else {
+                renderVagas(vagas);
+            }
         } else {
             indicacoesTab.classList.add('active');
             vagasTab.classList.remove('active');
             aplicarFiltros();
         }
     });
+});
+
+// ===== BUSCA DE VAGAS =====
+buscaVagas.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    if (!query) {
+        vagasFiltradas = [...vagas];
+    } else {
+        vagasFiltradas = vagas.filter(vaga => {
+            const searchable = `${vaga.titulo} ${vaga.local} ${vaga.descricao || ''}`.toLowerCase();
+            return searchable.includes(query);
+        });
+    }
+    renderVagas(vagasFiltradas);
 });
 
 // ===== FILTROS =====
@@ -278,7 +306,8 @@ async function carregarDados() {
     try {
         loader.classList.remove('hidden');
         await Promise.all([carregarVagas(), carregarIndicacoes()]);
-        renderVagas();
+        vagasFiltradas = [...vagas];
+        renderVagas(vagas);
         indicacoesFiltradas = [...indicacoes];
         renderIndicacoes();
     } catch (error) {
@@ -295,9 +324,11 @@ async function carregarVagas() {
         querySnapshot.forEach((doc) => {
             vagas.push({ id: doc.id, ...doc.data() });
         });
+        vagasFiltradas = [...vagas];
     } catch (error) {
         console.error("Erro ao carregar vagas:", error);
         vagas = [];
+        vagasFiltradas = [];
     }
 }
 
@@ -320,7 +351,6 @@ async function carregarIndicacoes() {
             } else {
                 data.vagaTitulo = data.vagaTitulo || 'ID: ' + data.vagaId;
             }
-            // Garante que o status existe
             if (!data.status) {
                 data.status = 'pendente';
             }
@@ -356,17 +386,19 @@ function contarIndicacoesPorCPF(cpf) {
 }
 
 // ===== RENDER VAGAS =====
-function renderVagas() {
-    if (vagas.length === 0) {
+function renderVagas(lista = null) {
+    const vagasParaRender = lista || vagasFiltradas || vagas;
+    
+    if (vagasParaRender.length === 0) {
         vagasList.innerHTML = `
             <div class="admin-item" style="justify-content: center; color: var(--text-light);">
-                <p>Nenhuma vaga cadastrada. Clique em "Nova Vaga" para criar.</p>
+                <p>${buscaVagas.value ? 'Nenhuma vaga encontrada para esta busca.' : 'Nenhuma vaga cadastrada. Clique em "Nova Vaga" para criar.'}</p>
             </div>
         `;
         return;
     }
 
-    vagasList.innerHTML = vagas.map(vaga => {
+    vagasList.innerHTML = vagasParaRender.map(vaga => {
         const status = vaga.status || 'ativa';
         const isPausado = status === 'pausado';
         
@@ -407,7 +439,7 @@ function renderVagas() {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.dataset.id;
-            const vaga = vagas.find(v => v.id === id);
+            const vaga = vagasParaRender.find(v => v.id === id);
             if (vaga) abrirModalEdicao(vaga);
         });
     });
@@ -415,7 +447,7 @@ function renderVagas() {
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.dataset.id;
-            const vaga = vagas.find(v => v.id === id);
+            const vaga = vagasParaRender.find(v => v.id === id);
             if (vaga) abrirConfirmDelete(vaga);
         });
     });
@@ -423,7 +455,7 @@ function renderVagas() {
     document.querySelectorAll('[data-action="toggle-status"]').forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.dataset.id;
-            const vaga = vagas.find(v => v.id === id);
+            const vaga = vagasParaRender.find(v => v.id === id);
             if (!vaga) return;
             
             const novoStatus = vaga.status === 'pausado' ? 'ativa' : 'pausado';
@@ -432,7 +464,16 @@ function renderVagas() {
                 loader.classList.remove('hidden');
                 await updateDoc(doc(db, "vagas", id), { status: novoStatus });
                 await carregarVagas();
-                renderVagas();
+                const query = buscaVagas.value.toLowerCase().trim();
+                if (query) {
+                    vagasFiltradas = vagas.filter(v => {
+                        const searchable = `${v.titulo} ${v.local} ${v.descricao || ''}`.toLowerCase();
+                        return searchable.includes(query);
+                    });
+                    renderVagas(vagasFiltradas);
+                } else {
+                    renderVagas(vagas);
+                }
             } catch (error) {
                 console.error("Erro ao alterar status:", error);
                 alert('Erro ao alterar status da vaga.');
@@ -503,7 +544,6 @@ function renderIndicacoes() {
         </div>
     `}).join('');
 
-    // Event listeners para mudança de status
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', async (e) => {
             const id = e.target.dataset.id;
@@ -512,17 +552,14 @@ function renderIndicacoes() {
             try {
                 loader.classList.remove('hidden');
                 await updateDoc(doc(db, "indicacoes", id), { status: novoStatus });
-                // Atualiza localmente
                 const indice = indicacoes.findIndex(ind => ind.id === id);
                 if (indice !== -1) {
                     indicacoes[indice].status = novoStatus;
                 }
-                // Reaplica os filtros
                 aplicarFiltros();
             } catch (error) {
                 console.error("Erro ao atualizar status:", error);
                 alert('Erro ao atualizar status da indicação.');
-                // Reverte o select
                 aplicarFiltros();
             } finally {
                 loader.classList.add('hidden');
@@ -557,9 +594,7 @@ function abrirNovaVaga() {
 
 novaVagaBtn.addEventListener('click', abrirNovaVaga);
 closeVagaModal.addEventListener('click', () => vagaModal.classList.remove('active'));
-vagaModal.addEventListener('click', (e) => {
-    if (e.target === vagaModal) vagaModal.classList.remove('active');
-});
+
 
 // ===== SALVAR VAGA =====
 vagaForm.addEventListener('submit', async (e) => {
@@ -591,7 +626,16 @@ vagaForm.addEventListener('submit', async (e) => {
         }
         vagaModal.classList.remove('active');
         await carregarVagas();
-        renderVagas();
+        const query = buscaVagas.value.toLowerCase().trim();
+        if (query) {
+            vagasFiltradas = vagas.filter(v => {
+                const searchable = `${v.titulo} ${v.local} ${v.descricao || ''}`.toLowerCase();
+                return searchable.includes(query);
+            });
+            renderVagas(vagasFiltradas);
+        } else {
+            renderVagas(vagas);
+        }
         vagaFormFeedback.style.display = 'none';
     } catch (error) {
         console.error("Erro ao salvar vaga:", error);
@@ -624,7 +668,16 @@ confirmDeleteBtn.addEventListener('click', async () => {
         await deleteDoc(doc(db, "vagas", deleteTargetId));
         confirmModal.classList.remove('active');
         await carregarVagas();
-        renderVagas();
+        const query = buscaVagas.value.toLowerCase().trim();
+        if (query) {
+            vagasFiltradas = vagas.filter(v => {
+                const searchable = `${v.titulo} ${v.local} ${v.descricao || ''}`.toLowerCase();
+                return searchable.includes(query);
+            });
+            renderVagas(vagasFiltradas);
+        } else {
+            renderVagas(vagas);
+        }
         deleteTargetId = null;
     } catch (error) {
         console.error("Erro ao excluir vaga:", error);

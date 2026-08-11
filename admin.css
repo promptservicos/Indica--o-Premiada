@@ -896,3 +896,44 @@ body {
     color: #f39c12;
     border: 1px solid rgba(243, 156, 18, 0.3);
 }
+
+/* ===== BARRA DE PESQUISA DE VAGAS - VERSÃO SUPER LARGA ===== */
+#buscaVagas {
+    height: 48px !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem 0.5rem 2.8rem !important;
+    border-radius: 30px !important;
+    width: 100% !important;
+    min-width: 400px !important;
+    max-width: 800px !important;
+}
+
+#buscaVagas:focus {
+    border-color: var(--input-focus) !important;
+    box-shadow: 0 0 0 4px rgba(193, 4, 4, 0.06) !important;
+}
+
+/* Ajuste do ícone da lupa */
+.search-wrapper .search-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+/* Deixa o wrapper da busca ocupando todo o espaço disponível */
+.search-wrapper {
+    flex: 2 !important;
+    min-width: 300px !important;
+    max-width: 100% !important;
+}
+
+/* Ajuste do container do header das vagas */
+.tab-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+}
+
+.tab-header > div:first-child {
+    flex: 1 !important;
+    min-width: 280px !important;
+}
