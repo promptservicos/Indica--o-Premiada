@@ -603,6 +603,7 @@ function abrirModalEdicao(vaga) {
     vagaLocal.value = vaga.local;
     vagaSalario.value = vaga.salario;
     vagaDescricao.value = vaga.descricao || '';
+    document.getElementById('vagaGenero').value = vaga.genero || '';
     vagaFormFeedback.style.display = 'none';
     vagaModal.classList.add('active');
 }
@@ -628,6 +629,7 @@ vagaForm.addEventListener('submit', async (e) => {
         local: vagaLocal.value.trim(),
         salario: vagaSalario.value.trim(),
         descricao: vagaDescricao.value.trim(),
+        genero: document.getElementById('vagaGenero').value,
         status: 'ativa'
     };
 

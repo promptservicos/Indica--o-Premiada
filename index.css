@@ -854,3 +854,14 @@ body {
         height: 16px;
     }
 }
+
+/* ===== CAMPO DE GÊNERO NO CARD ABERTO ===== */
+.vaga-genero {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0.2rem 0;
+}
+
+.vaga-genero strong {
+    color: var(--text-color);
+}

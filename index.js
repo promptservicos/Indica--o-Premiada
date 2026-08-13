@@ -134,7 +134,8 @@ function getMockVagas() {
             local: "Remoto / Brasil",
             salario: "R$ 7.000,00",
             descricao: "Atuação com React, Node.js e bancos de dados. Experiência com metodologias ágeis e trabalho em equipe.",
-            status: 'ativa'
+            status: 'ativa',
+            genero: 'ambos'
         },
         {
             id: "v2",
@@ -142,7 +143,8 @@ function getMockVagas() {
             local: "São Paulo - SP",
             salario: "R$ 5.200,00",
             descricao: "Planejamento de campanhas, gestão de mídias sociais, análise de métricas e criação de conteúdo.",
-            status: 'ativa'
+            status: 'ativa',
+            genero: 'feminino'
         },
         {
             id: "v3",
@@ -150,7 +152,8 @@ function getMockVagas() {
             local: "Belo Horizonte - MG",
             salario: "R$ 9.800,00",
             descricao: "Pipeline de dados, ETL, SQL e Python. Modelagem de dados e arquitetura de soluções.",
-            status: 'ativa'
+            status: 'ativa',
+            genero: 'masculino'
         },
         {
             id: "v4",
@@ -158,7 +161,8 @@ function getMockVagas() {
             local: "Curitiba - PR",
             salario: "R$ 6.300,00",
             descricao: "Criação de interfaces, prototipagem, testes de usabilidade e design system.",
-            status: 'ativa'
+            status: 'ativa',
+            genero: 'ambos'
         },
         {
             id: "v5",
@@ -166,9 +170,17 @@ function getMockVagas() {
             local: "Rio de Janeiro - RJ",
             salario: "R$ 3.800,00",
             descricao: "Atendimento a clientes, resolução de problemas técnicos e registro de chamados.",
-            status: 'ativa'
+            status: 'ativa',
+            genero: ''
         }
     ];
+}
+
+function getGeneroLabel(genero) {
+    if (genero === 'masculino') return 'Masculino';
+    if (genero === 'feminino') return 'Feminino';
+    if (genero === 'ambos') return 'Masculino / Feminino';
+    return '';
 }
 
 // ===== RENDER VAGAS =====
@@ -190,6 +202,8 @@ function renderVagas(vagasList) {
         card.className = 'vaga-card';
         card.dataset.id = vaga.id;
 
+        const generoLabel = getGeneroLabel(vaga.genero);
+
         card.innerHTML = `
             <div class="vaga-header">
                 <div class="vaga-titulo">${vaga.titulo}</div>
@@ -208,6 +222,7 @@ function renderVagas(vagasList) {
                         <span style="font-weight: 700; color: #C10404; margin-right: 4px;">$</span>
                         ${vaga.salario}
                     </div>
+                    ${vaga.genero ? `<div class="vaga-genero"><strong>Gênero:</strong> ${generoLabel}</div>` : ''}
                     <div class="vaga-descricao">
                         <strong>Descrição:</strong> ${vaga.descricao}
                     </div>
@@ -245,7 +260,34 @@ function renderVagas(vagasList) {
 function abrirModal(vagaId, vagaTitulo) {
     vagaIdHidden.value = vagaId;
     vagaTituloModal.textContent = `Vaga: ${vagaTitulo}`;
+    
+    // Busca a vaga para pegar local e gênero
+    const vaga = vagas.find(v => v.id === vagaId);
+    const temGeneroEspecifico = vaga && (vaga.genero === 'masculino' || vaga.genero === 'feminino');
+    
+    if (vaga) {
+        // Atualiza o local
+        document.getElementById('vagaLocalConfirm').textContent = vaga.local || 'local informado';
+        
+        // Atualiza o gênero
+        const generoTexto = vaga.genero === 'masculino' ? 'Masculino' : 
+                           vaga.genero === 'feminino' ? 'Feminino' : 
+                           vaga.genero === 'ambos' ? 'Ambos' : '';
+        document.getElementById('vagaGeneroConfirm').textContent = generoTexto;
+        
+        // Mostra/esconde a confirmação de gênero
+        const confirmGeneroWrapper = document.getElementById('confirmGeneroWrapper');
+        if (temGeneroEspecifico) {
+            confirmGeneroWrapper.style.display = 'flex';
+        } else {
+            confirmGeneroWrapper.style.display = 'none';
+        }
+    }
+    
     form.reset();
+    // Desmarca as confirmações
+    document.getElementById('confirmLocal').checked = false;
+    document.getElementById('confirmGenero').checked = false;
     feedback.style.display = 'none';
     feedback.className = 'alert';
     modal.classList.add('active');
@@ -266,6 +308,26 @@ modal.addEventListener('click', (e) => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Verifica as confirmações
+    const confirmLocal = document.getElementById('confirmLocal').checked;
+    const confirmGenero = document.getElementById('confirmGenero').checked;
+    const confirmGeneroWrapper = document.getElementById('confirmGeneroWrapper');
+    const temGeneroEspecifico = confirmGeneroWrapper.style.display !== 'none';
+
+    if (!confirmLocal) {
+        feedback.textContent = 'Confirme que a pessoa indicada mora na região da vaga.';
+        feedback.className = 'alert alert-error';
+        feedback.style.display = 'block';
+        return;
+    }
+
+    if (temGeneroEspecifico && !confirmGenero) {
+        feedback.textContent = 'Confirme que a pessoa indicada é do gênero especificado para esta vaga.';
+        feedback.className = 'alert alert-error';
+        feedback.style.display = 'block';
+        return;
+    }
+
     const dados = {
         indicador: {
             nome: document.getElementById('indicadorNome').value.trim(),
@@ -275,11 +337,16 @@ form.addEventListener('submit', async (e) => {
         indicado: {
             nome: document.getElementById('indicadoNome').value.trim(),
             cpf: document.getElementById('indicadoCpf').value.trim(),
-            telefone: document.getElementById('indicadoTelefone').value.trim()
+            telefone: document.getElementById('indicadoTelefone').value.trim(),
+            genero: document.getElementById('indicadoGenero').value
         },
         vagaId: vagaIdHidden.value,
         timestamp: new Date().toISOString(),
-        status: 'pendente'
+        status: 'pendente',
+        confirmacoes: {
+            local: confirmLocal,
+            genero: confirmGenero
+        }
     };
 
     if (!dados.indicador.nome || !dados.indicador.cpf || !dados.indicador.telefone ||

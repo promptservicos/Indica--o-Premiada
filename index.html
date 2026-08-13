@@ -40,15 +40,15 @@
         <div class="instructions">
             <div class="instruction-item">
                 <span class="instruction-number">1</span>
-                <span class="instruction-text">Indique alguém para uma vaga.</span>
+                <span class="instruction-text">Indique alguém para uma vaga</span>
             </div>
             <div class="instruction-item">
                 <span class="instruction-number">2</span>
-                <span class="instruction-text">Sendo contratado e após 20 dias no cargo, você (que indicou) ganha <strong>R$ 100,00</strong> no PIX.</span>
+                <span class="instruction-text">Sendo contratado e após 20 dias no cargo, você ganha <strong>R$ 100,00</strong> no PIX</span>
             </div>
             <div class="instruction-item">
                 <span class="instruction-number">3</span>
-                <span class="instruction-text">Qualquer contato necessário será feito pelo número cadastrado.</span>
+                <span class="instruction-text">Qualquer contato será feito pelo número cadastrado</span>
             </div>
         </div>
 
@@ -143,6 +143,38 @@
                             </svg>
                         </span>
                         <input type="text" id="indicadoTelefone" placeholder="Telefone" maxlength="15" required />
+                    </div>
+
+                    <!-- Gênero do Indicado -->
+                    <div class="input-box" style="margin-top: 15px;">
+                        <span class="input-icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <circle cx="12" cy="12" r="4"/>
+                                <path d="M12 2v4M12 22v-4M4 12H2M22 12h-2M19.07 4.93l-2.83 2.83M6.34 17.66l-2.83 2.83M17.66 6.34l2.83-2.83M4.93 19.07l2.83-2.83"/>
+                            </svg>
+                        </span>
+                        <select id="indicadoGenero" style="width: 100%; height: 48px; background-color: transparent; border: 2px solid var(--input-border); border-radius: 30px; outline: none; font-size: 14px; color: var(--text-color); padding: 0 20px 0 48px; font-family: 'Poppins', sans-serif; transition: border-color 0.3s ease, box-shadow 0.3s ease; appearance: none; cursor: pointer;">
+                            <option value="">Selecione o gênero</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Confirmações -->
+                <div id="confirmacoesContainer" style="margin: 20px 0; padding: 16px; background: var(--tab-bg); border-radius: 16px; border: 1px solid var(--card-border);">
+                    <div id="confirmLocalWrapper" style="display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 12px;">
+                        <input type="checkbox" id="confirmLocal" style="width: 18px; height: 18px; margin-top: 2px; accent-color: var(--link-color); cursor: pointer;" />
+                        <label for="confirmLocal" style="font-size: 0.9rem; color: var(--text-color); cursor: pointer; line-height: 1.4;">
+                            A pessoa indicada mora em <strong id="vagaLocalConfirm"></strong> ou região?
+                        </label>
+                    </div>
+                    <div id="confirmGeneroWrapper" style="display: none; align-items: flex-start; gap: 0.8rem;">
+                        <input type="checkbox" id="confirmGenero" style="width: 18px; height: 18px; margin-top: 2px; accent-color: var(--link-color); cursor: pointer;" />
+                        <label for="confirmGenero" style="font-size: 0.9rem; color: var(--text-color); cursor: pointer; line-height: 1.4;">
+                            A pessoa indicada é do gênero <strong id="vagaGeneroConfirm"></strong>?
+                        </label>
                     </div>
                 </div>
 
